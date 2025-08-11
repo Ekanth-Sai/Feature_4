@@ -40,4 +40,14 @@ def rsi(series: pd.Series, window: int = 14):
 - `ma_up` gives the average gain over the last `window` days
 - `ma_down` gives the average loss over the last `window` days
 - `RS` which is the relative strength gives the average of gains and losses.
-- `RSI = 100 - (100 / (1 + rs))` is the RSI formula which governs whether a stock has been overbrought or oversold. The result will always lie between 0 and 100. If RSI > 70, it is overbrought, meaning it might go down. If RSI < 30, it is oversold, meaning it will go up. I added `1e-9` so that, if `ma_down` is 0, it will avoid dvision by 0.
+- `RSI = 100 - (100 / (1 + rs))` is the RSI formula which governs whether a stock has been overbrought or oversold. The result will always lie between 0 and 100. If RSI > 70, it is overbrought, meaning it might go down. If RSI < 30, it is oversold, meaning it will go up. I added `1e-9` so that, if `ma_down` is 0, it will avoid division by 0.
+
+## src/features/redis.py
+- This file is a Redis client utility. Redis is a super fast in-memory database that can store and retrieve small bits of data in ms
+### Code Details
+- It stores features and retrieves them when needed.
+- For example, suppose we calculate RSI, SMA, EMA from `ta.py` for "AAPL" (Apple) ticker in python, we store them in redis, which later can be pulled by another service without recomputing.
+```python
+r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses = True)
+```
+- `decode_responses = True` converts Redis responses, which are usually in bytes, to python strings.
