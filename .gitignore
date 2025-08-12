@@ -1,6 +1,6 @@
 /F4
-/test
 src/utils/__init__.py
 src/__init__.py
 kafka_2.13-3.9.1.tgz
 /kafka_2.13-3.9.1
+/test

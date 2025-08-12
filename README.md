@@ -176,3 +176,76 @@ python src/producer/tick_producer.py
 ```bash
 ./bin/kafka-console-consumer.sh --topic market.ticks --from-beginning --bootstrap-server localhost:9092
 ```
+
+## src/news/news_producer.py
+
+- This file is a python script that simulates financial news headlines and sends them to Kafka so that the consumers can process them in real time. It is like a fake news feed that runs continously and publishes a `JSON` stream to Kafka.
+
+### Code Details
+
+```python
+SAMPLE_HEADLINES = [
+    ("positive", "announces higher quarterly profit than expected"),
+    ("negative", "faces regulatory inquiry into operations"),
+    ("neutral", "board meeting scheduled next week"),
+]
+```
+
+- It is a list of `(tone, text)` pairs, where `tone = sentiment` and `text = headlines snippet`. Since this is a PoC, I used basic text. Will upgrade for real time.
+
+```python
+def run():
+    while True:
+        sym = random.choice(SYMBOLS)
+        tone, txt = random.choice(SAMPLE_HEADLINES)
+        msg = {
+            "id": f"news_{int(time.time()*1000)}",
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "source": "sim",
+            "lang": "en",
+            "symbol": sym,
+            "text": f"{sym} {txt}",
+            "tone": tone,
+        }
+        producer.send(TOPIC, msg)
+        producer.flush()
+        time.sleep(random.uniform(5, 20))
+```
+
+- I kept an infinite loop as the news should be generated an analyzed continously.
+- We pick a random text and its respective tone.
+- `"id"` is the unique id which is generated as the ms after each epoch generation.
+- `"source"`: `"sim"` means that the source is simulated.
+- `.send()` queues it for sending. `.flush()` forces to be sent.
+
+### How to run / execute
+
+- Change directory to the Kafka folder. Start the zookeeper.
+
+```bash
+./bin/zookeeper-server-start.sh config/zookeeper.properties
+```
+
+- Open another terminal with the directory of Kafka folder.
+
+```bash
+./bin/kafka-server-start.sh config/server.properties
+```
+
+- Open another terminal to create a topic. Only need to be executed the first time.
+
+```bash
+./bin/kafka-topics.sh --create --topic news.stream --bootstrap-server localhost:9092
+```
+
+- Go to the root directory and execute the file.
+
+```bash
+python src/news/news_producer.py
+```
+
+- In a new terminal
+
+```bash
+./bin/kafka-console-consumer.sh --topic news.stream --from-beginning --bootstrap-server localhost:9092
+```
