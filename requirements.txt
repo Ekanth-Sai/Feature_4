@@ -7,7 +7,7 @@ fastapi==0.116.1
 h11==0.16.0
 idna==3.10
 joblib==1.5.1
-kafka-python==2.2.15
+kafka-python==2.3.2
 numpy==2.3.2
 packaging==25.0
 pandas==2.3.1
